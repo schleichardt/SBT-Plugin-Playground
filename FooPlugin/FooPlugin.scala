@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 
-object FooPlugin extends Plugin {
+object FooPlugin extends Plugin { //see http://harrah.github.com/xsbt/latest/api/#sbt.Plugin
   override lazy val settings = Seq(commands ++= Seq(helloCommand, helloCommandWithArgsFromProject))
 
   lazy val helloCommand = 
@@ -13,12 +13,13 @@ object FooPlugin extends Plugin {
 
   lazy val helloCommandWithArgsFromProject = 
     Command.command("hello2", "bla 2", "blubb 2") { (state: State) =>
-      println("Hi!  " + sourceDirectories) 
+      println("Hi!  " + projectSettings + " global:" + globalSettings + " build:" + buildSettings) 
       state
     }
 
     val newTask = TaskKey[Unit]("hello3", description ="noch ein Task mit eigenen Settings")
     val newTask2 = TaskKey[Unit]("hello4", description ="noch ein Task mit 2 eigenen Settings")
+    val newTask3 = TaskKey[Unit]("hello5", description ="app-Daten auslesen")
     val newSetting = SettingKey[String]("new-setting")
     val newSetting2 = SettingKey[String]("new-setting2")
 
@@ -28,6 +29,7 @@ object FooPlugin extends Plugin {
             newSetting := "test", //kann in build.sbt der App überschrieben werden,
             newSetting2 := "default",
             newTask <<= newSetting map { str => println(str) },
-            newTask2 <<= (newSetting, newSetting2) map { (set1, set2) => println(set1 + " " + set2) } //vor map als tuple, und als anonyme Funktion auch wie Tuple aufgebaut
+            newTask2 <<= (newSetting, newSetting2) map { (set1, set2) => println(set1 + " " + set2) }, //vor map als tuple, und als anonyme Funktion auch wie Tuple aufgebaut
+            newTask3 <<= name map { x => println("TODO"  + x) } // globale Einstellung nutzen
     )
 } 
