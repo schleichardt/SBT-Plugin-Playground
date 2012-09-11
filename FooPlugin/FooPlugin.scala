@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object FooPlugin extends Plugin { //see http://harrah.github.com/xsbt/latest/api/#sbt.Plugin
-  override lazy val settings = Seq(commands ++= Seq(helloCommand, helloCommandWithArgsFromProject, callOtherCommandFromSbt, callOtherTaskFromPlugin))
+  override lazy val settings = Seq(commands ++= Seq(helloCommand, helloCommandWithArgsFromProject, callOtherCommandFromSbt, callOtherTaskFromPlugin, commandWithArguments))
 
   lazy val helloCommand = 
     Command.command("hello", "Simple Hello World Command", "detailed description of hello") { (state: State) =>
@@ -60,6 +60,12 @@ object FooPlugin extends Plugin { //see http://harrah.github.com/xsbt/latest/api
 
     state
 
+  }
+
+    //call: sbt "hello9 arg1 arg2 arg3"
+   val commandWithArguments: Command = Command.args("hello9", "<args>") { (state, args) =>
+    println("command with args: " + args.mkString(", "))
+    state
   }
 
 
