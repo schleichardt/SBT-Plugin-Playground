@@ -63,7 +63,7 @@ object FooPlugin extends Plugin { //see http://harrah.github.com/xsbt/latest/api
   }
 
     //call: sbt "hello9 arg1 arg2 arg3"
-   val commandWithArguments: Command = Command.args("hello9", "<args>") { (state, args) =>
+   val commandWithArguments: Command = Command.args("hello9", "Hinweis bei Tab completion") { (state, args) =>
     println("command with args: " + args.mkString(", "))
     state
   }
