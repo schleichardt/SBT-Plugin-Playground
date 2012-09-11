@@ -19,7 +19,8 @@ object FooPlugin extends Plugin { //see http://harrah.github.com/xsbt/latest/api
       println(extracted.get(name)) //needs import Keys._
       println(extracted.get(sbtVersion))
       println(extracted.get(scalaVersion))    
-      println(extracted.get(version))    
+      println(extracted.get(version))   
+      println(extracted.get(newSetting))  //this is a plugin SettingKey  
       state
     }
 
