@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object FooPlugin extends Plugin { //see http://harrah.github.com/xsbt/latest/api/#sbt.Plugin
-  override lazy val settings = Seq(commands ++= Seq(helloCommand, helloCommandWithArgsFromProject))
+  override lazy val settings = Seq(commands ++= Seq(helloCommand, helloCommandWithArgsFromProject, callOtherCommandFromSbt, callOtherTaskFromPlugin))
 
   lazy val helloCommand = 
     Command.command("hello", "Simple Hello World Command", "detailed description of hello") { (state: State) =>
@@ -23,6 +23,45 @@ object FooPlugin extends Plugin { //see http://harrah.github.com/xsbt/latest/api
       println(extracted.get(newSetting))  //this is a plugin SettingKey  
       state
     }
+
+   lazy val callOtherCommandFromSbt =  Command.command("hello7", "bla 7", "blubb 7") { (state: State) =>
+        val taskKey = Keys.compile in Compile
+
+        println("compiling")
+
+        // Evaluate the task
+        // None if the key is not defined
+        // Some(Inc) if the task does not complete successfully (Inc for incomplete)
+        // Some(Value(v)) with the resulting value
+        val result: Option[(State, Result[_])] = Project.runTask(taskKey, state, true)
+        // handle the result
+        (result map (_._2)) match
+        {
+                case None => println("Key wasn't defined.")
+                case Some(Inc(inc)) => println(Incomplete.show(inc.tpe))
+                case Some(Value(v)) => println("value: " + v)
+        }
+
+    state //ggf. muss state aus dem result verwendet werden
+
+  }
+
+   lazy val callOtherTaskFromPlugin =  Command.command("hello8", "bla 8", "blubb 8") { (state: State) =>
+        println("calling hello4")
+
+        val result: Option[(State, Result[_])] = Project.runTask(newTask2, state, true)
+        // handle the result
+        (result map (_._2)) match
+        {
+                case None => println("Key wasn't defined.")
+                case Some(Inc(inc)) => println(Incomplete.show(inc.tpe))
+                case Some(Value(v)) => println("value: " + v)
+        }
+
+    state
+
+  }
+
 
     val newTask = TaskKey[Unit]("hello3", description ="noch ein Task mit eigenen Settings")
     val newTask2 = TaskKey[Unit]("hello4", description ="noch ein Task mit 2 eigenen Settings")
