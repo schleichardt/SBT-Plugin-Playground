@@ -55,6 +55,14 @@ object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/ap
     (state, args) => {println("command with args: " + args.mkString(", ")); state }
   }
 
+  //http://www.scala-sbt.org/howto/generatefiles.html
+  val generateSourcesInitialization =  sourceManaged in Compile map { dir =>
+    val file = dir / "demo" / "Test.scala"
+    println("generating file: " + file)
+    IO.write(file, """object GeneratedClassWithVal { val aValue = "Hi from generated" }""")
+    Seq(file) //return Seq of paths to generated files
+  }
+
   val newTask = TaskKey[Unit]("hello3", description = "noch ein Task mit eigenen Settings")
   val newTask2 = TaskKey[Unit]("hello4", description = "noch ein Task mit 2 eigenen Settings")
   val newTask3 = TaskKey[Unit]("hello5", description = "app-Daten auslesen")
@@ -71,5 +79,6 @@ object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/ap
     newTask2 <<= (newSetting, newSetting2) map { (set1, set2) => println(set1 + " " + set2)},
     newTask3 <<= name map { x => println("TODO" + x) } // globale Einstellung nutzen
     //,newTask4 <<= {println("TODO" ) } // globale Einstellung nutzen
+    , sourceGenerators in Compile <+= generateSourcesInitialization
   )
 } 
