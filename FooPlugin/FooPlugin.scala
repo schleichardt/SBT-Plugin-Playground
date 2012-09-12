@@ -63,6 +63,44 @@ object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/ap
     Seq(file) //return Seq of paths to generated files
   }
 
+
+  //some stuff is from play framework 2.0.3
+  def PostCompile(scope: Configuration) = (sourceDirectory in scope, dependencyClasspath in scope, compile in scope, javaSource in scope, sourceManaged in scope, classDirectory in scope, scalaSource in scope) map { (src, deps, analysis, javaSrc, srcManaged, classes, scalaSource) =>
+
+    val classpath = (deps.map(_.data.getAbsolutePath).toArray :+ classes.getAbsolutePath).mkString(java.io.File.pathSeparator)
+
+    println("classpath=" + classpath)
+
+    val javaClasses = (javaSrc ** "*.java").get.map { sourceFile =>
+      analysis.relations.products(sourceFile)
+    }.flatten.distinct
+
+    println(javaClasses.mkString("Java classes:\n","\n", "\n"))
+
+    val scalaClasses = (scalaSource ** "*.scala").get.map { sourceFile =>
+      analysis.relations.products(sourceFile)
+    }.flatten.distinct
+
+    println(scalaClasses.mkString("Scala classes:\n", "\n", "\n"))
+
+    // Copy managed classes - only needed in Compile scope
+//    if (scope.name.toLowerCase == "compile") {
+//      val managedClassesDirectory = classes.getParentFile / (classes.getName + "_managed")
+//
+//      val managedClasses = ((srcManaged ** "*.scala").get ++ (srcManaged ** "*.java").get).map { managedSourceFile =>
+//        analysis.relations.products(managedSourceFile)
+//      }.flatten x rebase(classes, managedClassesDirectory)
+//
+//      // Copy modified class files
+//      val managedSet = IO.copy(managedClasses)
+//
+//      // Remove deleted class files
+//      (managedClassesDirectory ** "*.class").get.filterNot(managedSet.contains(_)).foreach(_.delete())
+//    }
+    analysis
+  }
+
+
   val newTask = TaskKey[Unit]("hello3", description = "noch ein Task mit eigenen Settings")
   val newTask2 = TaskKey[Unit]("hello4", description = "noch ein Task mit 2 eigenen Settings")
   val newTask3 = TaskKey[Unit]("hello5", description = "app-Daten auslesen")
@@ -80,5 +118,6 @@ object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/ap
     newTask3 <<= name map { x => println("TODO" + x) } // globale Einstellung nutzen
     //,newTask4 <<= {println("TODO" ) } // globale Einstellung nutzen
     , sourceGenerators in Compile <+= generateSourcesInitialization
+    , compile in (Compile) <<= PostCompile(scope = Compile)
   )
 } 
