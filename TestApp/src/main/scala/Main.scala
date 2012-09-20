@@ -1,11 +1,11 @@
- 
+import com.google.common.base.Strings._
+
+
 object Main extends App {
   println("App started ")
   println(GeneratedClassWithVal.aValue)
+
+  println(repeat("NaN", 10))
 }
 
-@deprecated
-class FindMe(val why:String) extends scala.annotation.StaticAnnotation  {}
-
-@FindMe("inCompile")
 case class Bar(barMember1: String, barMember2: Int)

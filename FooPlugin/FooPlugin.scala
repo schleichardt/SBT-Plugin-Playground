@@ -1,3 +1,5 @@
+import java.io.FileInputStream
+import javassist.ClassPool
 import sbt._
 import Keys._
 
@@ -82,6 +84,29 @@ object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/ap
     }.flatten.distinct
 
     println(scalaClasses.mkString("Scala classes:\n", "\n", "\n"))
+
+
+    val classPool = new ClassPool()
+    classPool.appendSystemPath()
+    classPool.appendPathList(classpath)
+
+//    val clazz = classPool.get("tmp.FindMe")
+//    println("FindMeClass="+clazz)
+//
+//    println("FindMeClass2="+classPool.makeClass("tmp.FindMe"))
+
+    for (scalaClassFile <- (scalaClasses) if !scalaClassFile.absolutePath.endsWith("FindMe.class")) {
+      val is = new FileInputStream(scalaClassFile)
+        val ctClass = classPool.makeClass(is)
+//        val output= ctClass.getDeclaredFields.foreach(f => println("+" + f.getFieldInfo.getDescriptor)) //Ljava/lang/String; oder I für Int
+        val output= ctClass.getDeclaredFields.foreach(f => println("+" + f.getFieldInfo.toString))
+
+      println(output)
+    }
+
+//    scalaClasses.foreach(path => println(Class.forName(path)))
+
+
 
     // Copy managed classes - only needed in Compile scope
 //    if (scope.name.toLowerCase == "compile") {
