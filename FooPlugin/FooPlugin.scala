@@ -90,38 +90,13 @@ object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/ap
     classPool.appendSystemPath()
     classPool.appendPathList(classpath)
 
-//    val clazz = classPool.get("tmp.FindMe")
-//    println("FindMeClass="+clazz)
-//
-//    println("FindMeClass2="+classPool.makeClass("tmp.FindMe"))
-
     for (scalaClassFile <- (scalaClasses) if !scalaClassFile.absolutePath.endsWith("FindMe.class")) {
       val is = new FileInputStream(scalaClassFile)
         val ctClass = classPool.makeClass(is)
-//        val output= ctClass.getDeclaredFields.foreach(f => println("+" + f.getFieldInfo.getDescriptor)) //Ljava/lang/String; oder I für Int
         val output= ctClass.getDeclaredFields.foreach(f => println("+" + f.getFieldInfo.toString))
 
       println(output)
     }
-
-//    scalaClasses.foreach(path => println(Class.forName(path)))
-
-
-
-    // Copy managed classes - only needed in Compile scope
-//    if (scope.name.toLowerCase == "compile") {
-//      val managedClassesDirectory = classes.getParentFile / (classes.getName + "_managed")
-//
-//      val managedClasses = ((srcManaged ** "*.scala").get ++ (srcManaged ** "*.java").get).map { managedSourceFile =>
-//        analysis.relations.products(managedSourceFile)
-//      }.flatten x rebase(classes, managedClassesDirectory)
-//
-//      // Copy modified class files
-//      val managedSet = IO.copy(managedClasses)
-//
-//      // Remove deleted class files
-//      (managedClassesDirectory ** "*.class").get.filterNot(managedSet.contains(_)).foreach(_.delete())
-//    }
     analysis
   }
 
@@ -129,7 +104,9 @@ object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/ap
   val newTask = TaskKey[Unit]("hello3", description = "noch ein Task mit eigenen Settings")
   val newTask2 = TaskKey[Unit]("hello4", description = "noch ein Task mit 2 eigenen Settings")
   val newTask3 = TaskKey[Unit]("hello5", description = "app-Daten auslesen")
-  val newTask4 = TaskKey[Unit]("hello6", description = "app-Daten auslesen 2")
+  val newTask4 = TaskKey[Unit]("hello6", description = "app-Daten auslesen 2")//not assigned
+  val newTask5 = TaskKey[Unit]("hello10", description = "depends on hello11")
+  val newTask6 = TaskKey[String]("hello11", description = "is needed by hello10")
   val newSetting = SettingKey[String]("new-setting")
   val newSetting2 = SettingKey[String]("new-setting2")
 
@@ -141,8 +118,9 @@ object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/ap
     newTask <<= newSetting map { str => println(str)},
     newTask2 <<= (newSetting, newSetting2) map { (set1, set2) => println(set1 + " " + set2)},
     newTask3 <<= name map { x => println("TODO" + x) } // globale Einstellung nutzen
-    //,newTask4 <<= {println("TODO" ) } // globale Einstellung nutzen
     , sourceGenerators in Compile <+= generateSourcesInitialization
     , compile in (Compile) <<= PostCompile(scope = Compile)
+    , newTask6 <<= (name) map { name => println("hello11 called"); "resultOfTaskhello11"}
+    , newTask5 <<= newTask6 map {value => println("hello10 received: " + value)}
   )
 } 
