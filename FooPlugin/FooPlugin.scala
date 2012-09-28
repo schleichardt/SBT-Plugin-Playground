@@ -110,6 +110,11 @@ object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/ap
   val newSetting = SettingKey[String]("new-setting")
   val newSetting2 = SettingKey[String]("new-setting2")
 
+  /*
+  use := if you add a static value/function, that needs no arguments
+  use <<= if you are dependend of other settings or tasks
+  */
+  
   // a group of settings ready to be added to a Project
   // to automatically add them, do
   val newSettings = Seq(
@@ -120,7 +125,7 @@ object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/ap
     newTask3 <<= name map { x => println("TODO" + x) } // globale Einstellung nutzen
     , sourceGenerators in Compile <+= generateSourcesInitialization
     , compile in (Compile) <<= PostCompile(scope = Compile)
-    , newTask6 <<= (name) map { name => println("hello11 called"); "resultOfTaskhello11"}
+    , newTask6 := {println("hello11 called"); "resultOfTaskhello11"}
     , newTask5 <<= newTask6 map {value => println("hello10 received: " + value)}
   )
 } 
