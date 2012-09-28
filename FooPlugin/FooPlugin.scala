@@ -3,6 +3,10 @@ import javassist.ClassPool
 import sbt._
 import Keys._
 
+/*
+  please look at 
+*/
+
 object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/api/#sbt.Plugin
 
   override lazy val settings = Seq(commands ++= Seq(helloCommand, helloCommandWithArgsFromProject, callOtherCommandFromSbt, callOtherTaskFromPlugin, commandWithArguments))
@@ -114,14 +118,16 @@ object FooPlugin extends Plugin {  //see http://harrah.github.com/xsbt/latest/ap
   use := if you add a static value/function, that needs no arguments
   use <<= if you are dependend of other settings or tasks
   */
+
+  def printlnNewSettingKeys(s1: String, s2: String) = println(s1 + " " + s2)
   
   // a group of settings ready to be added to a Project
   // to automatically add them, do
   val newSettings = Seq(
     newSetting := "test", //kann in build.sbt der App überschrieben werden,
     newSetting2 := "default",
-    newTask <<= newSetting map { str => println(str)},
-    newTask2 <<= (newSetting, newSetting2) map { (set1, set2) => println(set1 + " " + set2)},
+    newTask <<= newSetting map { str => println(str)}, 
+    newTask2 <<= (newSetting, newSetting2) map printlnNewSettingKeys,//you need only to write the function name, even if it has 2 parameters
     newTask3 <<= name map { x => println("TODO" + x) } // globale Einstellung nutzen
     , sourceGenerators in Compile <+= generateSourcesInitialization
     , compile in (Compile) <<= PostCompile(scope = Compile)
